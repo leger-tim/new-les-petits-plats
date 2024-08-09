@@ -20,7 +20,7 @@ function fetchRecipes() {
 function setupEventListeners() {
   const searchBar = document.getElementById("searchBar");
   searchBar.addEventListener("input", function () {
-    chercherRecettesAvecMethodes(searchBar.value);
+    chercherRecettesAvecBoucles(searchBar.value);
     filterDropdowns(searchBar.value);
   });
 
@@ -124,7 +124,8 @@ function addItemsToDropdown(selector, items) {
   });
 }
 
-function chercherRecettesAvecMethodes(champRecherche) {
+function chercherRecettesAvecBoucles(champRecherche) {
+  let resultats = [];
   let recherche = champRecherche.trim().toLowerCase();
   const messageElement = document.querySelector(".message");
 
@@ -134,15 +135,32 @@ function chercherRecettesAvecMethodes(champRecherche) {
     return;
   }
 
-  let resultats = recipes.filter((recipe) => {
-    return (
-      recipe.name.toLowerCase().includes(recherche) ||
-      recipe.description.toLowerCase().includes(recherche) ||
-      recipe.ingredients.some((ingredient) =>
-        ingredient.ingredient.toLowerCase().includes(recherche)
-      )
-    );
-  });
+  for (let i = 0; i < recipes.length; i++) {
+    let correspond = false;
+
+    if (recipes[i].name.toLowerCase().includes(recherche)) {
+      correspond = true;
+    }
+
+    if (
+      !correspond &&
+      recipes[i].description.toLowerCase().includes(recherche)
+    ) {
+      correspond = true;
+    }
+
+    for (let j = 0; j < recipes[i].ingredients.length && !correspond; j++) {
+      if (
+        recipes[i].ingredients[j].ingredient.toLowerCase().includes(recherche)
+      ) {
+        correspond = true;
+      }
+    }
+
+    if (correspond) {
+      resultats.push(recipes[i]);
+    }
+  }
 
   if (resultats.length === 0) {
     messageElement.innerHTML = `Aucune recette ne contient '${recherche}' vous pouvez chercher « tarte aux pommes », « poisson », etc.`;
